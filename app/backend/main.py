@@ -3,12 +3,19 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 import pandas as pd
 import joblib
+import json
 
 # Initialize the FastAPI app
 app = FastAPI()
 
 # Load the trained model
-model = joblib.load('loan_default_model.pkl')
+model = joblib.load('random_forest_model.joblib')
+scaler = joblib.load('scaler.joblib')
+
+# Load from a JSON file
+with open('feature_names.json', 'r') as f:
+    feature_names = json.load(f)
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,23 +38,37 @@ async def predict(request: Request):
         
         # Convert JSON data to DataFrame
         input_df = pd.DataFrame(data)
-        logging.info("Converted data to DataFrame: %s", input_df.head())
-
+        ID = input_df['id']
+        X = input_df.drop(columns=['loan_status', 'id'])  # Features
+        # Debugging: Print the columns before dropping any
+        logging.info("Initial DataFrame columns: %s", input_df.columns.tolist())
+        
         # Ensure the correct format of the data (e.g., check for expected columns)
-        required_columns = ['loan_amnt', 'installment', 'annual_inc', 'dti', 'fico_range_low', 'fico_range_high']
-        if not all(col in input_df.columns for col in required_columns):
-            logging.error("Missing required columns")
-            raise HTTPException(status_code=400, detail=f"JSON data must contain columns: {', '.join(required_columns)}")
+        required_columns = feature_names
+        missing_columns = [col for col in required_columns if col not in input_df.columns]
+        
+        if missing_columns:
+            logging.error("Missing required columns: %s", missing_columns)
+            raise HTTPException(status_code=400, detail=f"JSON data must contain columns: {', '.join(missing_columns)}")
 
+        # Drop any columns that are not in the feature_names
+        X = X[feature_names]
+        logging.info("DataFrame after ensuring feature columns: %s", X.head())
+
+        # Scale the data
+        X = scaler.transform(X)
         # Make predictions
-        predictions = model.predict(input_df)
+        predictions = model.predict(X)
         logging.info("Generated predictions: %s", predictions)
 
         # Add predictions to the DataFrame
-        input_df['predictions'] = predictions
+        result_df = pd.DataFrame()  # Recreate original DataFrame with all columns
+        result_df['id'] = ID
+        result_df['predictions'] = predictions
 
         # Convert the DataFrame to JSON
-        predictions_json = input_df.to_dict(orient='records')
+        predictions_json = result_df.to_dict(orient='records')
+
         logging.info("Returning predictions: %s", predictions_json)
         
         return JSONResponse(content={"predictions": predictions_json})

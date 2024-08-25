@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import json
 
 # Title and Introduction
 st.title('📊 Loan Default Prediction')
@@ -40,8 +41,8 @@ if uploaded_file is not None:
         st.markdown("**Predicting for all rows**")
 
     # Step 3: Display the input data
-    st.markdown("### Input Data for Prediction")
-    st.json(input_data)  # Display JSON in a pretty format
+    # st.markdown("### Input Data for Prediction")
+    # st.json(input_data)  # Display JSON in a pretty format
 
     # Step 4: Make prediction
     if st.button("Predict Loan Default"):
@@ -52,11 +53,10 @@ if uploaded_file is not None:
         # Display Prediction Results
         st.markdown("### 📈 Prediction Results")
         results = response.json().get("predictions", [])
-
         if results:
             # Display each prediction in a card-like format
             for i, result in enumerate(results):
-                st.markdown(f"#### row number {i}")
+                st.markdown(f"#### loan ID {result['id']}")
                 st.write(f"**Prediction:** {'Chraged off' if result['predictions'] == 1 else 'Fully Paid'}")
                 st.markdown("---")
 
