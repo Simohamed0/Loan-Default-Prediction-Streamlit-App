@@ -9,8 +9,8 @@ import json
 app = FastAPI()
 
 # Load the trained model
-model = joblib.load('random_forest_model.joblib')
-scaler = joblib.load('scaler.joblib')
+model = joblib.load('models/random_forest_model.joblib')
+scaler = joblib.load('models/scaler.joblib')
 
 # Load from a JSON file
 with open('feature_names.json', 'r') as f:

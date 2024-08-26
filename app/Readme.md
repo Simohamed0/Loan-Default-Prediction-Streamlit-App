@@ -4,8 +4,8 @@ This README provides instructions for building and running the app within a Dock
 
 ## Prerequisites
 
-- **Docker**: Ensure Docker is installed and running on your machine. Download it from [Docker's official website](https://www.docker.com/products/docker-desktop).
-- **Docker Compose**: Make sure Docker Compose is also installed. You can follow [these instructions](https://docs.docker.com/compose/install/) to install it if it's not already installed.
+- **Docker**: Ensure Docker is installed and running on your machine.
+- **Docker Compose**: Make sure Docker Compose is also installed.
 
 ## Getting Started
 
@@ -29,23 +29,16 @@ http://localhost:8501
 
 This URL should display the Streamlit app’s user interface.
 
-### 3. Stopping the App
+### 3. Upload the Demo CSV File
+
+Once the Streamlit app is open in your browser:
+
+Click on the file upload section to upload the demo CSV file provided.
+
+### 4. Stopping the App
 
 To stop the app and container, you can use:
 
 ```bash
 sudo docker-compose down
 ```
-
-### 4. Updating the App
-
-If you make changes to your app, re-run the build and start command:
-
-```bash
-sudo docker-compose up --build
-```
-
-This will rebuild the Docker image and restart the container with your updated app.
-
----
-
